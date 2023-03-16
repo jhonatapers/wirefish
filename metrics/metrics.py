@@ -23,6 +23,7 @@ class Metrics:
             if(protocol.aplies(proto)):
                 print('---------------------------------------------')
                 print('PACKET -> ('+str(packet.index)+')')
+                print('ENLACE:')
                 print('Destination MAC: ' + self.macadress(destinationMAC))
                 print('Source MAC: ' + self.macadress(sourceMAC))
                 print('Protocol: ' + protocol.name())
