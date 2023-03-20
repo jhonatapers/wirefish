@@ -1,10 +1,8 @@
 from typing import List
 from metrics.metrics import Metrics
-from metrics.protocol import Protocol, Arp, Ipv4, Ipv6
 from wirefish import Wirefish
 
-protocols : List[Protocol] = [Arp(), Ipv4(), Ipv6()]
-metrics = Metrics(protocols)
+metrics = Metrics()
 wirefish = Wirefish(metrics)
 
 def selectinterface():

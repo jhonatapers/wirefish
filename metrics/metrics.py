@@ -1,14 +1,15 @@
 from typing import List
 from binascii import hexlify
+from util.byte import Byte
 from struct import unpack
-from metrics.protocol import Protocol
+from metrics.protocol import Protocol, Arp, Ipv4, Ipv6, Other
 from vo.packet import Packet
 
 class Metrics:
 
-    def __init__(self, protocols : List[Protocol]):
+    def __init__(self):
         self.packets : List[Packet] = []
-        self.protocols : List[Protocol] = protocols
+        self.protocols : List[Protocol] = [Arp(), Ipv4(), Ipv6()]
 
     def analyzepacket(self, packet : Packet):
 
@@ -18,22 +19,24 @@ class Metrics:
         destinationMAC:bytes= ethernetHeader[0]
         sourceMAC:bytes = ethernetHeader[1]
         proto:bytes= ethernetHeader[2]
-
+        
+        
+        strategy : Protocol = Other()
         for protocol in self.protocols:
             if(protocol.aplies(proto)):
-                print('---------------------------------------------')
-                print('PACKET -> ('+str(packet.index)+')')
-                print('ENLACE:')
-                print('Destination MAC: ' + self.macadress(destinationMAC))
-                print('Source MAC: ' + self.macadress(sourceMAC))
-                print('Protocol: ' + protocol.name())
-                print('')
+                strategy = protocol
 
-                protocol.analyze(packet.data)
-                print('---------------------------------------------')
+        print('---------------------------------------------')
+        print('PACKET -> ('+str(packet.index)+')')
+        print('| ENLACE HEADER:')
+        print(' \\')
+        print('   | Destination MAC: ' + Byte.to_mac_adress(destinationMAC))
+        print('   | Source MAC: ' + Byte.to_mac_adress(sourceMAC))
+        print('   | Protocol: ' + protocol.name())
 
-    def macadress(self, mac_bytes : bytes):
-        return ':'.join(['{:02x}'.format(b) for b in mac_bytes])
+        strategy.analyze(packet.data[14:])
+        print('---------------------------------------------')
+            
 
     def finalmetrics(self):
         print(self.packets)
