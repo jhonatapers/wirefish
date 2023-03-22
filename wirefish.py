@@ -20,6 +20,7 @@ class Wirefish:
         while (index < maxPackets):
             data, addr = self.socketraw.recvfrom(65535)
             self.metrics.analyzepacket(Packet(index, data))
+            #self.metrics.finalmetrics()
             index+=1
 
     def final_metrics(self):

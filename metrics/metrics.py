@@ -7,9 +7,10 @@ from vo.packet import Packet
 
 class Metrics:
 
-    def __init__(self,protocols : List[Protocol]):
+    def __init__(self,protocols : List[Protocol], all_protocols : List[Protocol]):
         self.packets:List[Packet]=[]
         self.protocols=protocols
+        self.all_protocols=all_protocols
         self.count=0;
 
     def analyzepacket(self, packet : Packet):
@@ -41,7 +42,7 @@ class Metrics:
             
 
     def finalmetrics(self):
-        for protocol in self.protocols:
-            print(protocol.name() + str(protocol.counter()))
+        for protocol in self.all_protocols:
+            protocol.metrics()
 
     

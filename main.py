@@ -16,7 +16,7 @@ ipv4=Ipv4([udp,tcp,icmp])
 arp=Arp()
 
 
-metrics = Metrics([arp,ipv4,ipv6])
+metrics = Metrics([arp,ipv4,ipv6], [other_application,tls,http,icmp,icmpv6,udp,tcp,ipv6,ipv4,arp])
 wirefish = Wirefish(metrics)
 
 def selectinterface():
@@ -59,6 +59,4 @@ while True:
 
     wirefish.run(interface, maxpackets)
     wirefish.final_metrics()
-
-
-print(metrics)
+    print('----------------------------')

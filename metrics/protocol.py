@@ -18,7 +18,7 @@ class Protocol(ABC):
         pass
 
     @abstractmethod
-    def counter(self):
+    def metrics(self):
         pass
 
 class Arp(Protocol):
@@ -26,6 +26,8 @@ class Arp(Protocol):
     def __init__(self):
         self.proto = b'\x08\x06'
         self.count=0
+        self.count_reply=0
+        self.count_request=0
         pass
 
     def applies(self, protocol : bytes):
@@ -52,8 +54,10 @@ class Arp(Protocol):
         print('         | Operation: ' + self.to_operation(operation))
         self.count+=1
     
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
+        print(self.name()+'_Request :'+str(self.count_request))
+        print(self.name()+'_Reply :'+str(self.count_reply))
 
     def to_operation(self, operation : bytes):
         op = Byte.to_decimal(operation)
@@ -109,8 +113,8 @@ class Ipv4(Protocol):
 
         self.count+=1
 
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
 
 class Ipv6(Protocol):
 
@@ -144,8 +148,8 @@ class Ipv6(Protocol):
                 protocol.analyze(packet[24:])
         self.count+=1
 
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
 
 class Tcp(Protocol):
 
@@ -194,8 +198,8 @@ class Tcp(Protocol):
 
         self.count+=1
 
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
         
 
 class Udp(Protocol):
@@ -236,8 +240,8 @@ class Udp(Protocol):
 
         self.count+=1
 
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
 
 class Icmp(Protocol):
 
@@ -258,8 +262,8 @@ class Icmp(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=1
         
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
     
 
 class IcmpV6(Protocol):
@@ -281,8 +285,8 @@ class IcmpV6(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=0
 
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
 
 class Http(Protocol):
         
@@ -303,8 +307,8 @@ class Http(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=0
 
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
 
 class Tls(Protocol):
         
@@ -325,8 +329,8 @@ class Tls(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=0
 
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
 
 class OtherApplication(Protocol):
 
@@ -345,5 +349,5 @@ class OtherApplication(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=0
 
-    def counter(self):
-        self.count
+    def metrics(self):
+        print(self.name()+':'+str(self.count))
