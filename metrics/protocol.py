@@ -6,7 +6,7 @@ from util.byte import Byte
 class Protocol(ABC):
 
     @abstractmethod
-    def aplies(self, protocol : bytes):
+    def applies(self, protocol : bytes):
         pass
 
     @abstractmethod
@@ -17,29 +17,18 @@ class Protocol(ABC):
     def analyze(self, packet : bytes):
         pass
 
-class Other(Protocol):
-
-    def __init__(self):
+    @abstractmethod
+    def counter(self):
         pass
-
-    def aplies(self, protocol : bytes):
-        return True
-       
-    def name(self):
-        return 'OTHER'
-    
-    def analyze(self, packet : bytes):
-        print('    \\')
-        print('      | NETWORK '+self.name()+' :')
-        
 
 class Arp(Protocol):
 
     def __init__(self):
         self.proto = b'\x08\x06'
+        self.count=0
         pass
 
-    def aplies(self, protocol : bytes):
+    def applies(self, protocol : bytes):
         if(protocol == self.proto):
             return True
     
@@ -58,15 +47,32 @@ class Arp(Protocol):
         targ_hw_add=arp[7]
         targ_hw_add=arp[8]
         print(packet)
+        print('      | NETWORK '+self.name()+' :')
+        print('       \\ ARP HEADER')
+        print('         | Operation: ' + self.to_operation(operation))
+        self.count+=1
+    
+    def counter(self):
+        self.count
+
+    def to_operation(self, operation : bytes):
+        op = Byte.to_decimal(operation)
+        if op == 1:
+            return 'Request'
+        elif op ==  2:
+            return 'Reply'
+            
+
 
 class Ipv4(Protocol):
 
-    def __init__(self):
+    def __init__(self,protocols : List[Protocol]):
         self.proto = b'\x08\x00'
-        self.protocols : List[Protocol] = [Tcp(),Udp(),Icmp()]
+        self.protocols=protocols
+        self.count=0
         pass
 
-    def aplies(self, protocol : bytes):
+    def applies(self, protocol : bytes):
         if(protocol == self.proto):
             return True
         
@@ -85,29 +91,36 @@ class Ipv4(Protocol):
         time_to_live=ipv4[5]
         proto=ipv4[6]
         header_checksum=ipv4[7]
-        source_adress=ipv4[8]
-        destination_adress=ipv4[9]
+        source_address=ipv4[8]
+        destination_address=ipv4[9]
         options=ipv4[10]
 
         for protocol in self.protocols:
-            if(protocol.aplies(proto)):
-                print('    \\')
+            if(protocol.applies(proto)):
                 print('      | NETWORK '+self.name()+' :')
                 print('       \\ IP HEADER')
                 print('         | Version: ' + str(version))
                 print('         | Ihl: ' + str(ihl))
-                print('         | Destination Adress: ' + Byte.to_ipv4(destination_adress))
-                print('         | Source Adress: ' + Byte.to_ipv4(source_adress))
+                print('         | Destination Adress: ' + Byte.to_ipv4(destination_address))
+                print('         | Source Adress: ' + Byte.to_ipv4(source_address))
                 print('         | Protocol: ' + protocol.name())
+                print('          \\')
                 protocol.analyze(packet[24:])
+
+        self.count+=1
+
+    def counter(self):
+        self.count
 
 class Ipv6(Protocol):
 
-    def __init__(self):
-        self.proto = b'\x08\xDD'
+    def __init__(self,protocols : List[Protocol] ):
+        self.proto = b'\x86\xdd'
+        self.protocols =protocols
+        self.count=0
         pass
 
-    def aplies(self, protocol : bytes):
+    def applies(self, protocol : bytes):
         if(protocol == self.proto):
             return True
        
@@ -115,17 +128,34 @@ class Ipv6(Protocol):
         return 'IPV6'
     
     def analyze(self, packet : bytes):
-        print(packet)
-        print(self.name())
+        ipv6 = unpack("4s2s1s1s16s16s", packet[:40])
+        next_header=ipv6[2]
+        source_address=ipv6[4]
+        destination_address=ipv6[5]
+
+        for protocol in self.protocols:
+            if(protocol.applies(next_header)):
+                print('      | NETWORK '+self.name()+' :')
+                print('       \\ IP HEADER')
+                print('         | Destination Adress: ' + Byte.to_ipv6(destination_address))
+                print('         | Source Adress: ' + Byte.to_ipv6(source_address))
+                print('         | Protocol: ' + protocol.name())
+                print('          \\')
+                protocol.analyze(packet[24:])
+        self.count+=1
+
+    def counter(self):
+        self.count
 
 class Tcp(Protocol):
 
-    def __init__(self):
+    def __init__(self, protocols : List[Protocol]):
         self.proto = b'\x06'
-        self.protocols : List[Protocol] = [Http()]
+        self.protocols=protocols
+        self.count=0
         pass
 
-    def aplies(self, protocol : bytes):
+    def applies(self, protocol : bytes):
         if(protocol == self.proto):
             return True
        
@@ -142,28 +172,41 @@ class Tcp(Protocol):
         flags=tcp[5]
         window=tcp[6]
 
-        print('          \\')
         print('            | Transport '+ self.name() +' :')
         print('             \\')
         print('               | Source Port: ' + str(Byte.to_port(source_port)))
         print('               | Destination Port: ' + str(Byte.to_port(destination_port)))
+        
 
+        source_proto : Protocol = OtherApplication()
         for protocol in self.protocols:
-            if(protocol.aplies(Byte.to_port(source_port))):
-                protocol.analyze(packet)
+            if(protocol.applies(Byte.to_port(source_port))):
+                source_proto = protocol
+        print('                \\')
+        source_proto.analyze(packet)
                 
+        destination_proto : Protocol = OtherApplication()
         for protocol in self.protocols:
-            if(protocol.aplies(Byte.to_port(destination_port))):
-                protocol.analyze(packet)
+            if(protocol.applies(Byte.to_port(destination_port))):
+                destination_proto = protocol
+        print('                \\')
+        destination_proto.analyze(packet)
+
+        self.count+=1
+
+    def counter(self):
+        self.count
         
 
 class Udp(Protocol):
 
-    def __init__(self):
+    def __init__(self, protocols : List[Protocol]):
         self.proto = b'\x17'
+        self.protocols=protocols
+        self.count=0
         pass
 
-    def aplies(self, protocol : bytes):
+    def applies(self, protocol : bytes):
         if(protocol == self.proto):
             return True
        
@@ -171,16 +214,39 @@ class Udp(Protocol):
         return 'UDP'
     
     def analyze(self, packet : bytes):
-        print(packet)
-        print(self.name())
+        udp = unpack("!2s2s2s2s", packet[:8])
+        source_port=udp[0]
+        destination_port=udp[1]
+        length=udp[2]
+        checksum=udp[3]
+
+        print('          \\')
+        print('            | Transport '+ self.name() +' :')
+        print('             \\')
+        print('               | Source Port: ' + str(Byte.to_port(source_port)))
+        print('               | Destination Port: ' + str(Byte.to_port(destination_port)))
+
+        for protocol in self.protocols:
+            if(protocol.applies(Byte.to_port(source_port))):
+                protocol.analyze(packet)
+                
+        for protocol in self.protocols:
+            if(protocol.applies(Byte.to_port(destination_port))):
+                protocol.analyze(packet)
+
+        self.count+=1
+
+    def counter(self):
+        self.count
 
 class Icmp(Protocol):
 
     def __init__(self):
         self.proto = b'\x01'
+        self.count=0
         pass
 
-    def aplies(self, protocol : bytes):
+    def applies(self, protocol : bytes):
         if(protocol == self.proto):
             return True
        
@@ -190,14 +256,42 @@ class Icmp(Protocol):
     def analyze(self, packet : bytes):
         print('                \\')
         print('                  | Application: ' + self.name())
+        self.count+=1
+        
+    def counter(self):
+        self.count
+    
+
+class IcmpV6(Protocol):
+
+    def __init__(self):
+        self.proto = b'\x3a'
+        self.count=0
+        pass
+
+    def applies(self, protocol : bytes):
+        if(protocol == self.proto):
+            return True
+       
+    def name(self):
+        return 'ICMPv6'
+    
+    def analyze(self, packet : bytes):
+        print('                \\')
+        print('                  | Application: ' + self.name())
+        self.count+=0
+
+    def counter(self):
+        self.count
 
 class Http(Protocol):
         
     def __init__(self):
         self.port = 80
+        self.count=0
         pass
 
-    def aplies(self, port : int):
+    def applies(self, port : int):
         if(port == self.port):
             return True
        
@@ -207,14 +301,19 @@ class Http(Protocol):
     def analyze(self, packet : bytes):
         print('                \\')
         print('                  | Application: ' + self.name())
+        self.count+=0
+
+    def counter(self):
+        self.count
 
 class Tls(Protocol):
         
     def __init__(self):
         self.port = 443
+        self.count=0
         pass
 
-    def aplies(self, port : int):
+    def applies(self, port : int):
         if(port == self.port):
             return True
        
@@ -224,3 +323,27 @@ class Tls(Protocol):
     def analyze(self, packet : bytes):
         print('                \\')
         print('                  | Application: ' + self.name())
+        self.count+=0
+
+    def counter(self):
+        self.count
+
+class OtherApplication(Protocol):
+
+    def __init__(self):
+        self.count=0
+        pass
+
+    def applies(self, protocol : bytes):
+        return True
+       
+    def name(self):
+        return 'OTHER'
+    
+    def analyze(self, packet : bytes):
+        print('                \\')
+        print('                  | Application: ' + self.name())
+        self.count+=0
+
+    def counter(self):
+        self.count

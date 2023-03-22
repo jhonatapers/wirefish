@@ -2,14 +2,15 @@ from typing import List
 from binascii import hexlify
 from util.byte import Byte
 from struct import unpack
-from metrics.protocol import Protocol, Arp, Ipv4, Ipv6, Other
+from metrics.protocol import Protocol, Arp, Ipv4, Ipv6
 from vo.packet import Packet
 
 class Metrics:
 
-    def __init__(self):
-        self.packets : List[Packet] = []
-        self.protocols : List[Protocol] = [Arp(), Ipv4(), Ipv6()]
+    def __init__(self,protocols : List[Protocol]):
+        self.packets:List[Packet]=[]
+        self.protocols=protocols
+        self.count=0;
 
     def analyzepacket(self, packet : Packet):
 
@@ -20,25 +21,27 @@ class Metrics:
         sourceMAC:bytes = ethernetHeader[1]
         proto:bytes= ethernetHeader[2]
         
-        
-        strategy : Protocol = Other()
         for protocol in self.protocols:
-            if(protocol.aplies(proto)):
-                strategy = protocol
+            if(protocol.applies(proto)):
+                print('---------------------------------------------')
+                print('PACKET -> ('+str(packet.index)+')')
+                print('| ENLACE HEADER:')
+                print(' \\')
+                print('   | Destination MAC: ' + Byte.to_mac_adress(destinationMAC))
+                print('   | Source MAC: ' + Byte.to_mac_adress(sourceMAC))
+                print('   | Protocol: ' + protocol.name())
+                print('    \\')
 
-        print('---------------------------------------------')
-        print('PACKET -> ('+str(packet.index)+')')
-        print('| ENLACE HEADER:')
-        print(' \\')
-        print('   | Destination MAC: ' + Byte.to_mac_adress(destinationMAC))
-        print('   | Source MAC: ' + Byte.to_mac_adress(sourceMAC))
-        print('   | Protocol: ' + protocol.name())
+                protocol.analyze(packet.data[14:])
 
-        strategy.analyze(packet.data[14:])
-        print('---------------------------------------------')
+                print('PACKET:')
+                print(packet.data)
+                print('---------------------------------------------')
+                self.count+=1
             
 
     def finalmetrics(self):
-        print(self.packets)
+        for protocol in self.protocols:
+            print(protocol.name() + str(protocol.counter()))
 
     

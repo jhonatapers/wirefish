@@ -1,8 +1,22 @@
 from typing import List
 from metrics.metrics import Metrics
 from wirefish import Wirefish
+from metrics.protocol import Protocol, Arp, Ipv4, Ipv6, Tcp, Udp, Icmp, IcmpV6, Http, Tls, OtherApplication
 
-metrics = Metrics()
+
+other_application=OtherApplication()
+tls=Tls()
+http=Http()
+icmpv6=IcmpV6()
+icmp=Icmp()
+udp=Udp([other_application])
+tcp=Tcp([http,tls,icmp,other_application])
+ipv6=Ipv6([udp,tcp,icmpv6])
+ipv4=Ipv4([udp,tcp,icmp])
+arp=Arp()
+
+
+metrics = Metrics([arp,ipv4,ipv6])
 wirefish = Wirefish(metrics)
 
 def selectinterface():
@@ -44,6 +58,7 @@ while True:
         break     
 
     wirefish.run(interface, maxpackets)
+    wirefish.final_metrics()
 
 
 print(metrics)

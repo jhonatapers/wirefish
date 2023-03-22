@@ -21,3 +21,8 @@ class Wirefish:
             data, addr = self.socketraw.recvfrom(65535)
             self.metrics.analyzepacket(Packet(index, data))
             index+=1
+
+    def final_metrics(self):
+        self.metrics.finalmetrics()
+  
+         
