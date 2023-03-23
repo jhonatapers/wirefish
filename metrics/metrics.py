@@ -2,7 +2,7 @@ from typing import List
 from binascii import hexlify
 from util.byte import Byte
 from struct import unpack
-from metrics.protocol import Protocol, Arp, Ipv4, Ipv6
+from metrics.protocol import Protocol
 from vo.packet import Packet
 
 class Metrics:
