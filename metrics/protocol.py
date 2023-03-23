@@ -55,6 +55,7 @@ class Arp(Protocol):
         self.count+=1
     
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
         print(self.name()+'_Request : -> Total: '+str(self.count_request) + ' Percent: ' '{0:.2f}%'.format((self.count_request/total_patckets)*100))
         print(self.name()+'_Reply : -> Total: '+str(self.count_reply) + ' Percent: ' '{0:.2f}%'.format((self.count_reply/total_patckets)*100))
@@ -116,6 +117,7 @@ class Ipv4(Protocol):
         self.count+=1
 
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Ipv6(Protocol):
@@ -151,6 +153,7 @@ class Ipv6(Protocol):
         self.count+=1
 
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Tcp(Protocol):
@@ -159,6 +162,7 @@ class Tcp(Protocol):
         self.proto = b'\x06'
         self.protocols=protocols
         self.count=0
+        self.port_uses={}
         pass
 
     def applies(self, protocol : bytes):
@@ -190,6 +194,7 @@ class Tcp(Protocol):
                 source_proto = protocol
         print('                \\')
         source_proto.analyze(packet)
+        #self.port_use(Byte.to_port(source_port))
                 
         destination_proto : Protocol = OtherApplication()
         for protocol in self.protocols:
@@ -197,11 +202,30 @@ class Tcp(Protocol):
                 destination_proto = protocol
         print('                \\')
         destination_proto.analyze(packet)
+        self.port_use(Byte.to_port(source_port))
 
         self.count+=1
 
+    def port_use(self, port:int):
+        if port in self.port_uses:
+            self.port_uses[port]+=1
+        else:
+            self.port_uses[port]=1
+
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
+        self.most_used_ports(self.port_uses)
+    
+    def most_used_ports(self, port_uses):
+        most_used_ports=dict(sorted(port_uses.items(), key=lambda x: x[1], reverse=True))
+        max_iterations=5
+        current_iteration=0
+        for key,value in most_used_ports.items():
+            if max_iterations == current_iteration:
+                break;
+            print('PORT: '+str(key)+' USES: '+str(value))
+            current_iteration+=1
         
 
 class Udp(Protocol):
@@ -210,6 +234,7 @@ class Udp(Protocol):
         self.proto = b'\x17'
         self.protocols=protocols
         self.count=0
+        self.port_uses = {}
         pass
 
     def applies(self, protocol : bytes):
@@ -232,18 +257,45 @@ class Udp(Protocol):
         print('               | Source Port: ' + str(Byte.to_port(source_port)))
         print('               | Destination Port: ' + str(Byte.to_port(destination_port)))
 
+        source_proto : Protocol = OtherApplication()
         for protocol in self.protocols:
             if(protocol.applies(Byte.to_port(source_port))):
-                protocol.analyze(packet)
+                source_proto = protocol
+        print('                \\')
+        source_proto.analyze(packet)
+        #self.port_use(Byte.to_port(source_port))
                 
+        destination_proto : Protocol = OtherApplication()
         for protocol in self.protocols:
             if(protocol.applies(Byte.to_port(destination_port))):
-                protocol.analyze(packet)
+                destination_proto = protocol
+        print('                \\')
+        destination_proto.analyze(packet)
+        self.port_use(Byte.to_port(source_port))
 
         self.count+=1
 
+    def port_use(self, port:int):
+        if port in self.port_uses:
+            self.port_uses[port]+=1
+        else:
+            self.port_uses[port]=1
+
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
+        self.most_used_ports(self.port_uses)
+    
+    def most_used_ports(self, port_uses):
+        most_used_ports=dict(sorted(port_uses.items(), key=lambda x: x[1], reverse=True))
+
+        max_iterations=5
+        current_iteration=0
+        for key,value in most_used_ports.items():
+            if max_iterations == current_iteration:
+                break;
+            print('PORT: '+str(key)+' USES: '+str(value))
+            current_iteration+=1
 
 class Icmp(Protocol):
 
@@ -265,6 +317,7 @@ class Icmp(Protocol):
         self.count+=1
         
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
     
 
@@ -288,6 +341,7 @@ class IcmpV6(Protocol):
         self.count+=0
 
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Http(Protocol):
@@ -310,6 +364,7 @@ class Http(Protocol):
         self.count+=0
 
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Tls(Protocol):
@@ -332,6 +387,7 @@ class Tls(Protocol):
         self.count+=0
 
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class OtherApplication(Protocol):
@@ -344,7 +400,7 @@ class OtherApplication(Protocol):
         return True
        
     def name(self):
-        return 'OTHER'
+        return 'OTHER APPLICATION'
     
     def analyze(self, packet : bytes):
         print('                \\')
@@ -352,4 +408,5 @@ class OtherApplication(Protocol):
         self.count+=0
 
     def metrics(self,total_patckets:int):
+        print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
