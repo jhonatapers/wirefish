@@ -18,7 +18,7 @@ class Protocol(ABC):
         pass
 
     @abstractmethod
-    def metrics(self):
+    def metrics(self,total_patckets:int):
         pass
 
 class Arp(Protocol):
@@ -51,19 +51,21 @@ class Arp(Protocol):
         print(packet)
         print('      | NETWORK '+self.name()+' :')
         print('       \\ ARP HEADER')
-        print('         | Operation: ' + self.to_operation(operation))
+        print('         | Operation: ' + self.operation(operation))
         self.count+=1
     
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
-        print(self.name()+'_Request :'+str(self.count_request))
-        print(self.name()+'_Reply :'+str(self.count_reply))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
+        print(self.name()+'_Request : -> Total: '+str(self.count_request) + ' Percent: ' '{0:.2f}%'.format((self.count_request/total_patckets)*100))
+        print(self.name()+'_Reply : -> Total: '+str(self.count_reply) + ' Percent: ' '{0:.2f}%'.format((self.count_reply/total_patckets)*100))
 
-    def to_operation(self, operation : bytes):
+    def operation(self, operation : bytes):
         op = Byte.to_decimal(operation)
         if op == 1:
+            self.count_request+=1
             return 'Request'
         elif op ==  2:
+            self.count_reply+=1
             return 'Reply'
             
 
@@ -113,8 +115,8 @@ class Ipv4(Protocol):
 
         self.count+=1
 
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Ipv6(Protocol):
 
@@ -148,8 +150,8 @@ class Ipv6(Protocol):
                 protocol.analyze(packet[24:])
         self.count+=1
 
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Tcp(Protocol):
 
@@ -198,8 +200,8 @@ class Tcp(Protocol):
 
         self.count+=1
 
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
         
 
 class Udp(Protocol):
@@ -240,8 +242,8 @@ class Udp(Protocol):
 
         self.count+=1
 
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Icmp(Protocol):
 
@@ -262,8 +264,8 @@ class Icmp(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=1
         
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
     
 
 class IcmpV6(Protocol):
@@ -285,8 +287,8 @@ class IcmpV6(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=0
 
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Http(Protocol):
         
@@ -307,8 +309,8 @@ class Http(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=0
 
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class Tls(Protocol):
         
@@ -329,8 +331,8 @@ class Tls(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=0
 
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
 
 class OtherApplication(Protocol):
 
@@ -349,5 +351,5 @@ class OtherApplication(Protocol):
         print('                  | Application: ' + self.name())
         self.count+=0
 
-    def metrics(self):
-        print(self.name()+':'+str(self.count))
+    def metrics(self,total_patckets:int):
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))

@@ -41,8 +41,8 @@ class Metrics:
                 self.count+=1
             
 
-    def finalmetrics(self):
+    def finalmetrics(self,total_patckets:int):
         for protocol in self.all_protocols:
-            protocol.metrics()
+            protocol.metrics(total_patckets)
 
     

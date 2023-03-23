@@ -6,6 +6,7 @@ from vo.packet import Packet
 class Wirefish:
     
     def __init__(self, metrics : Metrics):
+        self.total_patckets=0
         self.metrics = metrics
         self.socketraw : socket.socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
 
@@ -20,10 +21,10 @@ class Wirefish:
         while (index < maxPackets):
             data, addr = self.socketraw.recvfrom(65535)
             self.metrics.analyzepacket(Packet(index, data))
-            #self.metrics.finalmetrics()
             index+=1
+            self.total_patckets+=1
 
     def final_metrics(self):
-        self.metrics.finalmetrics()
+        self.metrics.finalmetrics(self.total_patckets)
   
          
