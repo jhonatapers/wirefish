@@ -15,6 +15,7 @@ class Wirefish:
 
     def run(self, interface, maxPackets: int):
 
+        self.socketraw : socket.socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
         self.socketraw.bind((interface[1], 0))
 
         index = 0
