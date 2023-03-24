@@ -13,9 +13,9 @@ class Wirefish:
     def availableInterfaces(self):
         return socket.if_nameindex()
 
-    def run(self, interface : str, maxPackets: int):
+    def run(self, interface, maxPackets: int):
 
-        self.socketraw.bind((interface, socket.INADDR_ANY))
+        self.socketraw.bind((interface[1], 0))
 
         index = 0
         while (index < maxPackets):

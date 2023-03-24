@@ -188,12 +188,12 @@ class Tcp(Protocol):
         print('               | Destination Port: ' + str(Byte.to_port(destination_port)))
         
 
-        source_proto : Protocol = OtherApplication()
-        for protocol in self.protocols:
-            if(protocol.applies(Byte.to_port(source_port))):
-                source_proto = protocol
-        print('                \\')
-        source_proto.analyze(packet)
+        #source_proto : Protocol = OtherApplication()
+        #for protocol in self.protocols:
+            #if(protocol.applies(Byte.to_port(source_port))):
+                #source_proto = protocol
+        #print('                \\')
+        #source_proto.analyze(packet)
         #self.port_use(Byte.to_port(source_port))
                 
         destination_proto : Protocol = OtherApplication()
@@ -203,7 +203,6 @@ class Tcp(Protocol):
         print('                \\')
         destination_proto.analyze(packet)
         self.port_use(Byte.to_port(source_port))
-
         self.count+=1
 
     def port_use(self, port:int):
@@ -231,7 +230,7 @@ class Tcp(Protocol):
 class Udp(Protocol):
 
     def __init__(self, protocols : List[Protocol]):
-        self.proto = b'\x17'
+        self.proto = b'\x11'
         self.protocols=protocols
         self.count=0
         self.port_uses = {}
@@ -257,12 +256,12 @@ class Udp(Protocol):
         print('               | Source Port: ' + str(Byte.to_port(source_port)))
         print('               | Destination Port: ' + str(Byte.to_port(destination_port)))
 
-        source_proto : Protocol = OtherApplication()
-        for protocol in self.protocols:
-            if(protocol.applies(Byte.to_port(source_port))):
-                source_proto = protocol
-        print('                \\')
-        source_proto.analyze(packet)
+        #source_proto : Protocol = OtherApplication()
+        #for protocol in self.protocols:
+            #if(protocol.applies(Byte.to_port(source_port))):
+                #source_proto = protocol
+        #print('                \\')
+        #source_proto.analyze(packet)
         #self.port_use(Byte.to_port(source_port))
                 
         destination_proto : Protocol = OtherApplication()
@@ -272,7 +271,6 @@ class Udp(Protocol):
         print('                \\')
         destination_proto.analyze(packet)
         self.port_use(Byte.to_port(source_port))
-
         self.count+=1
 
     def port_use(self, port:int):
@@ -338,7 +336,7 @@ class IcmpV6(Protocol):
     def analyze(self, packet : bytes):
         print('                \\')
         print('                  | Application: ' + self.name())
-        self.count+=0
+        self.count+=1
 
     def metrics(self,total_patckets:int):
         print('--------------------------------')
@@ -361,7 +359,7 @@ class Http(Protocol):
     def analyze(self, packet : bytes):
         print('                \\')
         print('                  | Application: ' + self.name())
-        self.count+=0
+        self.count+=1
 
     def metrics(self,total_patckets:int):
         print('--------------------------------')
@@ -384,7 +382,30 @@ class Tls(Protocol):
     def analyze(self, packet : bytes):
         print('                \\')
         print('                  | Application: ' + self.name())
-        self.count+=0
+        self.count+=1
+
+    def metrics(self,total_patckets:int):
+        print('--------------------------------')
+        print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
+
+class Dns(Protocol):
+        
+    def __init__(self):
+        self.port = 53
+        self.count=0
+        pass
+
+    def applies(self, port : int):
+        if(port == self.port):
+            return True
+       
+    def name(self):
+        return 'DNS'
+    
+    def analyze(self, packet : bytes):
+        print('                \\')
+        print('                  | Application: ' + self.name())
+        self.count+=1
 
     def metrics(self,total_patckets:int):
         print('--------------------------------')
@@ -405,7 +426,7 @@ class OtherApplication(Protocol):
     def analyze(self, packet : bytes):
         print('                \\')
         print('                  | Application: ' + self.name())
-        self.count+=0
+        self.count+=1
 
     def metrics(self,total_patckets:int):
         print('--------------------------------')
