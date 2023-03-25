@@ -24,20 +24,7 @@ class Metrics:
         
         for protocol in self.protocols:
             if(protocol.applies(proto)):
-                # print('---------------------------------------------')
-                # print('PACKET -> ('+str(packet.index)+')')
-                # print('| ENLACE HEADER:')
-                # print(' \\')
-                # print('   | Destination MAC: ' + Byte.to_mac_adress(destinationMAC))
-                # print('   | Source MAC: ' + Byte.to_mac_adress(sourceMAC))
-                # print('   | Protocol: ' + protocol.name())
-                # print('    \\')
-
                 protocol.analyze(packet.data[14:])
-
-                # print('PACKET:')
-                # print(packet.data)
-                # print('---------------------------------------------')
                 self.count+=1
             
 

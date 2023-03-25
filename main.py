@@ -1,23 +1,24 @@
 from typing import List
 from metrics.metrics import Metrics
 from wirefish import Wirefish
-from metrics.protocol import Arp, Ipv4, Ipv6, Tcp, Udp, Dns, Icmp, IcmpV6, Http, Tls, OtherApplication
+from metrics.protocol import Arp, Ipv4, Ipv6, Tcp, Udp, Dns, Icmp, IcmpV6, Http, Tls, Dhcp, OtherApplication
 
 
 other_application=OtherApplication()
 tls=Tls()
+dhcp=Dhcp()
 http=Http()
 icmpv6=IcmpV6()
 icmp=Icmp()
 dns=Dns()
-udp=Udp([other_application, dns])
+udp=Udp([dns,dhcp,other_application])
 tcp=Tcp([http,tls,other_application])
 ipv6=Ipv6([udp,tcp])
 ipv4=Ipv4([udp,tcp])
 arp=Arp()
 
 
-metrics = Metrics([arp,ipv4,ipv6,icmp,icmpv6], [other_application,tls,http,icmp,icmpv6,dns,udp,tcp,ipv6,ipv4,arp])
+metrics = Metrics([arp,ipv4,ipv6,icmp,icmpv6], [other_application,dhcp,tls,http,icmp,icmpv6,dns,udp,tcp,ipv6,ipv4,arp])
 wirefish = Wirefish(metrics)
 
 def select_interface():

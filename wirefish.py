@@ -15,11 +15,12 @@ class Wirefish:
 
     def run(self, interface, maxPackets: int):
 
-        self.socketraw : socket.socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
-        self.socketraw.bind((interface[1], 0))
-
         index = 0
         while (index < maxPackets):
+
+            self.socketraw : socket.socket = socket.socket(socket.AF_PACKET, socket.SOCK_RAW, socket.ntohs(3))
+            self.socketraw.bind((interface[1], 0))
+
             data, addr = self.socketraw.recvfrom(65535)
             self.metrics.analyzepacket(Packet(index, data))
             index+=1
