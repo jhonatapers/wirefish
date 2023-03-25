@@ -136,28 +136,29 @@ class Tcp(Protocol):
         source_port=tcp[0]
         destination_port=tcp[1]
 
+
         other_protocol:OtherApplication
         for protocol in self.protocols:
-            if(protocol.applies(source_port)):
+            if(protocol.name() == OtherApplication().name()):
                 other_protocol = protocol
 
         destination_proto=other_protocol
         for protocol in self.protocols:
-            if(protocol.applies(destination_port)):
+            if(protocol.applies(destination_port) and protocol.name() != OtherApplication().name()):
                 destination_proto = protocol
                 other=False
 
         source_proto=other_protocol
         for protocol in self.protocols:
-            if(protocol.name() == OtherApplication().name()):
+            if(protocol.applies(source_port) and protocol.name() != OtherApplication().name()):
                 source_proto = protocol
                 
         if destination_proto.name() != OtherApplication().name():
                 destination_proto.analyze(packet)
-                self.port_use(destination_port)
+                self.port_use(Byte.to_port(destination_port))
         else:
             source_proto.analyze(packet)
-            self.port_use(source_port)
+            self.port_use(Byte.to_port(source_port))
 
         self.count+=1
 
@@ -203,28 +204,31 @@ class Udp(Protocol):
         source_port=udp[0]
         destination_port=udp[1]
 
+        if(source_port == b'\x00C' or destination_port == b'\x00C'):
+            b = 'merda'
+
         other_protocol:OtherApplication
         for protocol in self.protocols:
-            if(protocol.applies(source_port)):
+            if(protocol.name() == OtherApplication().name()):
                 other_protocol = protocol
 
         destination_proto=other_protocol
         for protocol in self.protocols:
-            if(protocol.applies(destination_port)):
+            if(protocol.applies(destination_port) and protocol.name() != OtherApplication().name()):
                 destination_proto = protocol
                 other=False
 
         source_proto=other_protocol
         for protocol in self.protocols:
-            if(protocol.name() == OtherApplication().name()):
+            if(protocol.applies(source_port) and protocol.name() != OtherApplication().name()):
                 source_proto = protocol
                 
         if destination_proto.name() != OtherApplication().name():
                 destination_proto.analyze(packet)
-                self.port_use(destination_port)
+                self.port_use(Byte.to_port(destination_port))
         else:
             source_proto.analyze(packet)
-            self.port_use(source_port)
+            self.port_use(Byte.to_port(source_port))
 
         self.count+=1
 
@@ -294,7 +298,7 @@ class IcmpV6(Protocol):
 class Http(Protocol):
         
     def __init__(self):
-        self.port=80
+        self.port:int=80
         self.count=0
         pass
 
@@ -314,7 +318,7 @@ class Http(Protocol):
 class Tls(Protocol):
         
     def __init__(self):
-        self.port = 443
+        self.port:int=443
         self.count=0
         pass
 
@@ -334,7 +338,7 @@ class Tls(Protocol):
 class Dns(Protocol):
         
     def __init__(self):
-        self.port = 53
+        self.port:int=53
         self.count=0
         pass
 
@@ -354,7 +358,7 @@ class Dns(Protocol):
 class Dhcp(Protocol):
         
     def __init__(self):
-        self.port = 67
+        self.port:int=67
         self.count=0
         pass
 

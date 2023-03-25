@@ -24,6 +24,4 @@ class Byte:
         return ipv6#socket.inet_ntop(socket.AF_INET6, ipv6)
     
     def to_port(port: bytes):
-        teste =int.from_bytes(port, byteorder='big')
-        teste2=int(struct.unpack('!H', port[::-1])[0])
-        return teste
+        return int.from_bytes(port, byteorder='big')
