@@ -24,8 +24,4 @@ class Byte:
         return ipv6#socket.inet_ntop(socket.AF_INET6, ipv6)
     
     def to_port(port: bytes):
-        if(port == b'D\x03'):
-            b = 'aham'
-        if(port == b'd\x03'):
-            b = 'aham'
         return int.from_bytes(port, byteorder='big')
