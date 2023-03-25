@@ -317,6 +317,8 @@ class IcmpV6(Protocol):
         else:
             self.count_other+=1
 
+        self.count+=1
+
     def metrics(self,total_patckets:int):
         print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
