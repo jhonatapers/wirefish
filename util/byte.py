@@ -1,5 +1,6 @@
 from typing import List
 import struct
+import sys
 
 class Byte:
 
@@ -23,4 +24,6 @@ class Byte:
         return ipv6#socket.inet_ntop(socket.AF_INET6, ipv6)
     
     def to_port(port: bytes):
-        return int(struct.unpack('!H', port[::-1])[0])
+        teste =int.from_bytes(port, byteorder='big')
+        teste2=int(struct.unpack('!H', port[::-1])[0])
+        return teste

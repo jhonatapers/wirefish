@@ -264,10 +264,10 @@ class Udp(Protocol):
 
         if destination_proto.name != OtherApplication().name:
                 destination_proto.analyze(packet)
-                self.port_use(Byte.to_port(destination_port))
+                self.port_use(destination_port)
         else:
             source_proto.analyze(packet)
-            self.port_use(Byte.to_port(source_port))
+            self.port_use(source_port)
 
         self.count+=1
 
@@ -343,12 +343,13 @@ class IcmpV6(Protocol):
 class Http(Protocol):
         
     def __init__(self):
-        self.port = 80
+        self.port=80
         self.count=0
         pass
 
     def applies(self, port : bytes):
-        if(Byte.to_port(port) == self.port):
+        aham=Byte.to_port(port)
+        if(aham== self.port):
             return True
        
     def name(self):
