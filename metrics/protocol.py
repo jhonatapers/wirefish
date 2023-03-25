@@ -76,10 +76,11 @@ class Ipv4(Protocol):
     def analyze(self, packet : bytes):
         ipv4 = unpack("!1s1s2s2s2s1s1s2s4s4s4s", packet[:24])
         proto=ipv4[6]
-
+        version_and_ihl=Byte.to_bits(ord(ipv4[0]))
+        ihl=Byte.from_bit_array(version_and_ihl[4:8])*4
         for protocol in self.protocols:
             if(protocol.applies(proto)):
-                protocol.analyze(packet[24:])
+                protocol.analyze(packet[ihl:])
 
         self.count+=1
 
