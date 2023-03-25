@@ -204,9 +204,6 @@ class Udp(Protocol):
         source_port=udp[0]
         destination_port=udp[1]
 
-        if(source_port == b'\x00C' or destination_port == b'\x00C'):
-            b = 'merda'
-
         other_protocol:OtherApplication
         for protocol in self.protocols:
             if(protocol.name() == OtherApplication().name()):
@@ -257,7 +254,7 @@ class Udp(Protocol):
 class Icmp(Protocol):
 
     def __init__(self):
-        self.proto = b'\x01'
+        self.proto=b'\x01'
         self.count=0
         pass
 
