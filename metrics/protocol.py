@@ -109,7 +109,7 @@ class Ipv6(Protocol):
 
         for protocol in self.protocols:
             if(protocol.applies(next_header)):
-                protocol.analyze(packet[24:])
+                protocol.analyze(packet[40:])
         self.count+=1
 
     def metrics(self,total_patckets:int):
@@ -213,7 +213,6 @@ class Udp(Protocol):
         for protocol in self.protocols:
             if(protocol.applies(destination_port) and protocol.name() != OtherApplication().name()):
                 destination_proto = protocol
-                other=False
 
         source_proto=other_protocol
         for protocol in self.protocols:
@@ -272,7 +271,7 @@ class Icmp(Protocol):
         type=icmp[0]
 
         if(Byte.to_decimal(type)==int(0)):
-            self.count_repply+=1
+            self.count_reply+=1
         elif(Byte.to_decimal(type)==int(8)):
             self.count_request+=1
         else:
@@ -294,6 +293,9 @@ class IcmpV6(Protocol):
     def __init__(self):
         self.proto = b'\x3a'
         self.count=0
+        self.count_reply=0
+        self.count_request=0
+        self.count_other=0
         pass
 
     def applies(self, protocol : bytes):
@@ -303,12 +305,23 @@ class IcmpV6(Protocol):
         return 'ICMPv6'
     
     def analyze(self, packet : bytes):
-        aham =packet
-        self.count+=1
+        icmp = unpack("!1s1s2s4s", packet[:8])
+        type=icmp[0]
+        teste=Byte.to_decimal(type)
+
+        if(Byte.to_decimal(type)==int(129)):
+            self.count_reply+=1
+        elif(Byte.to_decimal(type)==int(128)):
+            self.count_request+=1
+        else:
+            self.count_other+=1
 
     def metrics(self,total_patckets:int):
         print('--------------------------------')
         print(self.name()+' -> Total: '+str(self.count) + ' Percent: ' + '{0:.2f}%'.format((self.count/total_patckets)*100))
+        print(self.name()+'_Request -> Total: '+str(self.count_request) + ' Percent: ' + '{0:.2f}%'.format((self.count_request/total_patckets)*100))
+        print(self.name()+'_Reply -> Total: '+str(self.count_reply) + ' Percent: ' + '{0:.2f}%'.format((self.count_reply/total_patckets)*100))
+        print(self.name()+'_Other -> Total: '+str(self.count_other) + ' Percent: ' + '{0:.2f}%'.format((self.count_other/total_patckets)*100))
 
 class Http(Protocol):
         
