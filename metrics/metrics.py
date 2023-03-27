@@ -17,6 +17,8 @@ class Metrics:
 
         self.packets.append(packet)
 
+
+
         ethernetHeader= unpack("!6s6s2s",packet.data[0:14])
         destinationMAC:bytes= ethernetHeader[0]
         sourceMAC:bytes = ethernetHeader[1]
@@ -31,5 +33,19 @@ class Metrics:
     def finalmetrics(self,total_patckets:int):
         for protocol in self.all_protocols:
             protocol.metrics(total_patckets)
+        total_packets = len(self.packets)
+        total_lenght=0
+        for packet in self.packets:
+            total_lenght+=len(packet.data)
+
+        print('--------------------------------------------')
+
+        print('Avarage packet lenght: ' + str(total_lenght/total_packets))
+
+        min_lenght=len(min(self.packets, key=lambda p: len(p.data)).data)
+        max_lenght=len(max(self.packets, key=lambda p: len(p.data)).data)
+
+        print('Min packet lenght: ' + str(min_lenght))
+        print('Max packet lenght: ' + str(max_lenght))
 
     
