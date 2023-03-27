@@ -40,12 +40,12 @@ class Metrics:
 
         print('--------------------------------------------')
 
-        print('Avarage packet lenght: ' + str(total_lenght/total_packets))
+        print('Average packet lenght: ' + str(total_lenght/total_packets))
 
         min_lenght=len(min(self.packets, key=lambda p: len(p.data)).data)
         max_lenght=len(max(self.packets, key=lambda p: len(p.data)).data)
 
-        print('Min packet lenght: ' + str(min_lenght))
-        print('Max packet lenght: ' + str(max_lenght))
+        print('Min packet length: ' + str(min_lenght))
+        print('Max packet length: ' + str(max_lenght))
 
     
