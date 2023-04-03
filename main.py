@@ -1,25 +1,27 @@
 from typing import List
 from metrics.metrics import Metrics
 from wirefish import Wirefish
-from metrics.protocol import Protocol, Arp, Ipv4, Ipv6, Tcp, Udp, Icmp, IcmpV6, Http, Tls, OtherApplication
+from metrics.protocol import Arp, Ipv4, Ipv6, Tcp, Udp, Dns, Icmp, IcmpV6, Http, Tls, Dhcp, OtherApplication
 
 
 other_application=OtherApplication()
 tls=Tls()
+dhcp=Dhcp()
 http=Http()
 icmpv6=IcmpV6()
 icmp=Icmp()
-udp=Udp([other_application])
-tcp=Tcp([http,tls,icmp,other_application])
+dns=Dns()
+udp=Udp([dns,dhcp,other_application])
+tcp=Tcp([http,tls,other_application])
 ipv6=Ipv6([udp,tcp,icmpv6])
 ipv4=Ipv4([udp,tcp,icmp])
 arp=Arp()
 
 
-metrics = Metrics([arp,ipv4,ipv6], [other_application,tls,http,icmp,icmpv6,udp,tcp,ipv6,ipv4,arp])
+metrics = Metrics([arp,ipv4,ipv6], [other_application,dhcp,tls,http,icmp,icmpv6,dns,udp,tcp,ipv6,ipv4,arp])
 wirefish = Wirefish(metrics)
 
-def selectinterface():
+def select_interface():
     interfaces = wirefish.availableInterfaces()
     print('Available interfaces:')
     for interface in interfaces:
@@ -28,7 +30,7 @@ def selectinterface():
     inpt = input("Select a interface (or 0 to quit)")
     if(inpt.isdigit()):
         if(int(inpt) > 0):
-            interface = interfaces[int(inpt)-1][1]
+            interface = interfaces[int(inpt)-1]
         else:
             return int(inpt)-1
     else:
@@ -36,7 +38,7 @@ def selectinterface():
 
     return interface
 
-def selectmaxpackets():
+def select_max_packets():
     inpt = input("Set max packets to analyze (or 0 to quit)")
     if(inpt.isdigit()):
         if(int(inpt) > 0):
@@ -49,11 +51,11 @@ def selectmaxpackets():
     return maxpackets
 
 while True:
-    interface = selectinterface()
+    interface = select_interface()
     if(interface == -1):
         break
 
-    maxpackets = selectmaxpackets() 
+    maxpackets = select_max_packets() 
     if(maxpackets == -1):
         break     
 
